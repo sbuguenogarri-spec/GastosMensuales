@@ -1,0 +1,1316 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finanzas Personales</title>
+    <style>
+        :root {
+            --bg-main: #eef3f8;
+            --bg-card: #ffffff;
+            --text-main: #1f2937;
+            --text-soft: #5b6472;
+            --brand-dark: #1a2b4c;
+            --brand-accent: #2ecc71;
+            --line-soft: #dbe3ee;
+            --shadow-card: 0 10px 20px rgba(20, 40, 80, 0.08);
+            --radius-md: 10px;
+            --radius-lg: 14px;
+        }
+
+        * { box-sizing: border-box; }
+        body {
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            background: radial-gradient(circle at 8% 0%, #f7fbff 0%, var(--bg-main) 42%, #e7eef7 100%);
+            color: var(--text-main);
+            font-size: 11px;
+            min-height: 100vh;
+        }
+        nav {
+            display: flex;
+            background: rgba(255, 255, 255, 0.92);
+            border-bottom: 1px solid var(--line-soft);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            overflow-x: auto;
+            backdrop-filter: blur(6px);
+            box-shadow: 0 4px 14px rgba(30, 60, 100, 0.08);
+        }
+        nav button {
+            flex: 1;
+            min-width: 110px;
+            padding: 11px 10px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-weight: 700;
+            color: var(--text-soft);
+            white-space: nowrap;
+            transition: color 0.2s ease, background-color 0.2s ease;
+        }
+        nav button.active {
+            color: var(--brand-dark);
+            border-bottom: 3px solid var(--brand-accent);
+            background: linear-gradient(180deg, rgba(46, 204, 113, 0.18) 0%, rgba(46, 204, 113, 0.04) 100%);
+        }
+        .container { padding: 15px; max-width: 1400px; margin: auto; width: 100%; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .card {
+            background: var(--bg-card);
+            padding: 10px;
+            border-radius: var(--radius-md);
+            margin-bottom: 12px;
+            box-shadow: var(--shadow-card);
+            border: 1px solid rgba(30, 50, 90, 0.06);
+            transition: box-shadow 0.2s ease;
+        }
+        .card:hover { box-shadow: 0 12px 28px rgba(16, 42, 84, 0.12); }
+        .btn {
+            background: #24b96a;
+            color: white;
+            border: none;
+            padding: 6px 11px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 700;
+            transition: transform 0.15s ease, filter 0.15s ease;
+        }
+        .btn-delete { background: #e74c3c; color: white; border: none; padding: 4px 8px; border-radius: 5px; cursor: pointer; }
+        .btn-edit { background: #3498db; color: white; border: none; padding: 4px 8px; border-radius: 5px; cursor: pointer; }
+        .btn-reset { background: #f39c12; color: white; border: none; padding: 6px 11px; border-radius: 6px; cursor: pointer; margin-left: 10px; font-weight: 700; }
+        .btn-status { border-radius: 50%; width: 25px; height: 25px; padding: 0; cursor: pointer; border: 1px solid #ccc; background: white; font-size: 12px; }
+        .table-scroll { overflow-x: auto; width: 100%; scrollbar-width: thin; scrollbar-color: #9db0ca #e9eef5; }
+        table { border-collapse: collapse; width: 100%; font-size: 10px; margin-bottom: 10px; background: #fff; }
+        th, td { padding: 5px 4px; border: 1px solid #ddd; text-align: center; white-space: nowrap; }
+        th { background: #f4f8fc; color: #2a3854; }
+        tbody tr:nth-child(even) { background: #fbfdff; }
+        h1, h2, h3, h4 { letter-spacing: 0.1px; }
+        h3 { margin: 6px 0 10px; color: #1e2f52; }
+        h4 { margin: 5px 0; color: #1a2b4c; }
+        .chip { display: inline-block; background: #eaf1fb; color: #2a3b59; padding: 4px 9px; border-radius: 16px; margin: 2px; font-size: 10px; border: 1px solid #d6e0ef; }
+        .chip .close { cursor: pointer; margin-left: 5px; font-weight: bold; }
+        .comida-resumen { background: #f9f9f9; padding: 8px; border-radius: 6px; margin-top: 10px; border-left: 4px solid #2ecc71; }
+        
+        .form-row { margin-bottom: 12px; display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
+        .form-row label { font-weight: bold; }
+        
+        .row-total-destacado { background: #edf2f7; font-weight: bold; }
+        .row-total-final { background: #1a2b4c; color: white; font-weight: bold; }
+
+        /* Grid Layout para el Resumen */
+        .resumen-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        @media (max-width: 900px) { .resumen-grid { grid-template-columns: 1fr; } }
+        .resumen-subseccion { margin-top: 15px; border-top: 1px dashed #ccc; padding-top: 10px; }
+        
+        .selector-mes-principal { background: linear-gradient(135deg, #1a2b4c 0%, #263a66 100%); color: white; padding: 12px; border-radius: var(--radius-lg); margin-bottom: 15px; display: flex; align-items: center; gap: 15px; flex-wrap: wrap; box-shadow: 0 12px 26px rgba(26, 43, 76, 0.22); }
+        .selector-mes-principal label { font-weight: bold; font-size: 12px; }
+        .selector-mes-principal input, .selector-mes-principal select { padding: 6px 7px; border-radius: 6px; border: none; font-size: 11px; }
+
+        /* Estilos específicos para el formulario de agregar crédito */
+        .credito-form-container { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
+        .credito-row-top { display: flex; gap: 8px; width: 100%; }
+        .credito-row-top input[type="text"] { flex: 2; padding: 4px; border: 1px solid #ccc; border-radius: 4px; font-size: 11px; }
+        .credito-row-top input[type="month"] { flex: 1; padding: 4px; border: 1px solid #ccc; border-radius: 4px; font-size: 11px; min-width: 120px; }
+        
+        .credito-row-bottom { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+        .credito-input-sm { padding: 3px 6px; font-size: 10px; height: 24px; border: 1px solid #ccc; border-radius: 4px; width: 75px; }
+        .credito-select-sm { padding: 3px 6px; font-size: 10px; height: 24px; border: 1px solid #ccc; border-radius: 4px; width: 85px; }
+        .credito-btn-sm { background: #2ecc71; color: white; border: none; padding: 3px 10px; border-radius: 4px; cursor: pointer; font-size: 10px; height: 24px; font-weight: bold; }
+
+        .input-gastos-fijos { width: 70px; padding: 2px; text-align: center; border: 1px solid #ccc; border-radius: 4px; font-size: 10px; }
+        .input-gastos-fijos:disabled { background-color: #f0f0f0; color: #555; border: 1px dashed #ddd; }
+
+        input, select, button { font: inherit; }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="date"],
+        input[type="month"],
+        select {
+            border: 1px solid #cfd8e4;
+            border-radius: 6px;
+            padding: 5px 6px;
+            background: #fff;
+        }
+
+        button:hover,
+        .btn:hover,
+        .btn-edit:hover,
+        .btn-delete:hover,
+        .btn-reset:hover,
+        .credito-btn-sm:hover {
+            filter: brightness(0.95);
+        }
+
+        .btn:active,
+        .btn-edit:active,
+        .btn-delete:active,
+        .btn-reset:active,
+        .credito-btn-sm:active {
+            transform: translateY(1px);
+        }
+
+        button:focus-visible,
+        input:focus-visible,
+        select:focus-visible {
+            outline: 2px solid rgba(52, 152, 219, 0.45);
+            outline-offset: 1px;
+        }
+
+        @media (max-width: 768px) {
+            body { font-size: 13px; }
+            .container { padding: 10px; }
+            .tab-content.active { animation: fadeSlideIn 0.22s ease; }
+
+            nav { display: grid; grid-template-columns: 1fr 1fr; overflow-x: hidden; }
+            nav button { min-width: 0; padding: 12px 8px; }
+
+            h1 { font-size: 1.3rem; margin: 10px 0; }
+            h3 { font-size: 1.1rem; }
+            h4 { font-size: 1rem; }
+
+            .selector-mes-principal {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 8px;
+            }
+            .selector-mes-principal label,
+            .selector-mes-principal input,
+            .selector-mes-principal select,
+            .selector-mes-principal button {
+                width: 100% !important;
+                max-width: 100%;
+            }
+            .btn-reset { margin-left: 0 !important; }
+
+            .form-row {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+            }
+            .form-row > div { width: 100%; }
+            .form-row input[type="number"] { width: 100% !important; }
+
+            .credito-row-top,
+            .credito-row-bottom {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .credito-row-top input[type="text"],
+            .credito-row-top input[type="month"],
+            .credito-input-sm,
+            .credito-select-sm,
+            .credito-btn-sm {
+                width: 100%;
+                height: auto;
+                min-height: 34px;
+            }
+
+            .card input[type="text"],
+            .card input[type="number"],
+            .card input[type="date"],
+            .card input[type="month"],
+            .card select,
+            .card button {
+                max-width: 100%;
+            }
+
+            .chip { font-size: 11px; }
+            .btn, .btn-delete, .btn-edit { min-height: 32px; }
+
+            .table-scroll {
+                border: 1px solid #e6e6e6;
+                border-radius: 6px;
+                -webkit-overflow-scrolling: touch;
+                background: #fff;
+            }
+            table { min-width: 520px; font-size: 11px; }
+            th, td { padding: 6px 5px; }
+
+            #resumen-viajes-valores,
+            #resumen-comida-valores {
+                flex-direction: column;
+                gap: 6px;
+                align-items: flex-start;
+            }
+
+            #deudas .card input[type="text"],
+            #deudas .card button,
+            #viajes .card input[type="text"],
+            #viajes .card input[type="number"],
+            #viajes .card button,
+            #comida input[type="text"],
+            #comida input[type="number"],
+            #comida input[type="month"],
+            #comida select,
+            #comida button {
+                width: 100% !important;
+            }
+
+            #comida details summary {
+                display: block !important;
+                line-height: 1.5;
+            }
+            #comida details summary button {
+                margin-top: 8px;
+            }
+
+            #comida .comida-resumen ul {
+                padding-left: 0 !important;
+                margin-left: 0;
+            }
+
+            .card { border-radius: 12px; }
+        }
+
+        @media (min-width: 769px) and (max-width: 1100px) {
+            body { font-size: 12px; }
+            .container { padding: 12px; }
+            .resumen-grid { grid-template-columns: 1fr; gap: 14px; }
+
+            .selector-mes-principal {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(180px, 1fr));
+                gap: 10px 12px;
+                align-items: end;
+            }
+            .selector-mes-principal .btn-reset {
+                grid-column: 1 / -1;
+                margin-left: 0 !important;
+                justify-self: start;
+            }
+
+            .credito-row-top {
+                display: grid;
+                grid-template-columns: 2fr 1fr;
+            }
+            .credito-row-bottom {
+                display: grid;
+                grid-template-columns: repeat(4, minmax(90px, 1fr)) auto;
+                align-items: center;
+            }
+
+            #resumen-viajes-valores,
+            #resumen-comida-valores { gap: 14px; }
+        }
+
+        @media (min-width: 1280px) {
+            body { font-size: 12px; }
+            .container { padding: 18px 20px; }
+            .card { padding: 12px; }
+            table { font-size: 10.5px; }
+        }
+
+        @media (hover: none) and (pointer: coarse) {
+            .btn,
+            .btn-edit,
+            .btn-delete,
+            .btn-reset,
+            .credito-btn-sm,
+            .btn-status,
+            nav button {
+                min-height: 36px;
+            }
+        }
+
+        @keyframes fadeSlideIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <button class="nav-btn active" onclick="openTab(event, 'resumen')">Resumen</button>
+        <button class="nav-btn" onclick="openTab(event, 'deudas')">Deudas</button>
+        <button class="nav-btn" onclick="openTab(event, 'viajes')">Viajes</button>
+        <button class="nav-btn" onclick="openTab(event, 'comida')">Comida</button>
+    </nav>
+
+    <div class="container">
+        
+        <!-- SELECTOR GLOBAL DE MES DE VISUALIZACIÓN -->
+        <div class="selector-mes-principal">
+            <label>📅 MES GLOBAL DE VISUALIZACIÓN:</label>
+            <input type="month" id="mes-selector-global" onchange="cambiarMesGlobal()" value="2026-06">
+            <label>Valor UF estimado ($):</label>
+            <input type="number" id="global-valor-uf" onchange="cambiarValorUF()" value="38000" style="width: 70px;">
+            <label>👤 Usuario Principal:</label>
+            <input type="text" id="global-usuario-principal" onchange="cambiarUsuarioPrincipal()" style="width: 80px;">
+            <button class="btn-reset" onclick="resetApp()" style="margin-left: auto;">RESET APP</button>
+        </div>
+
+        <!-- PESTAÑA RESUMEN -->
+        <div id="resumen" class="tab-content active">
+            <div class="resumen-grid">
+                
+                <!-- COLUMNA IZQUIERDA: SUELDO, BONO, GASTOS FIJOS, PROYECCIÓN -->
+                <div>
+                    <div class="card">
+                        <h3>💰 Control de Ingresos y Proyecciones</h3>
+                        <div class="form-row">
+                            <div>
+                                <label>Sueldo Mensual ($):</label>
+                                <input type="number" id="r-sueldo" placeholder="Ej: 1500000" onchange="actualizarSueldo()" style="width: 110px;">
+                            </div>
+                            <div>
+                                <label>Bono Mensual ($):</label>
+                                <input type="number" id="r-bono" placeholder="Ej: 200000" onchange="actualizarBono()" style="width: 100px;">
+                            </div>
+                        </div>
+                        
+                        <!-- TABLA DE GASTOS FIJOS -->
+                        <div class="resumen-subseccion">
+                            <h4>📋 Proyección de Gastos Fijos</h4>
+                            <div class="table-scroll">
+                                <table>
+                                    <thead id="head-gastos-fijos">
+                                        <!-- Dinámico -->
+                                    </thead>
+                                    <tbody id="body-gastos-fijos">
+                                        <!-- Dinámico -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="table-scroll" style="margin-top: 15px;">
+                            <table id="tabla-proyeccion-resumen">
+                                <!-- Dinámico -->
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- RESUMEN DE VIAJES -->
+                    <div class="card" style="border-left: 4px solid #3498db;">
+                        <h4 id="titulo-resumen-viajes">✈️ Viajes: Deudas</h4>
+                        <div style="display: flex; justify-content: space-around;" id="resumen-viajes-valores">
+                            <!-- Dinámico -->
+                        </div>
+                    </div>
+
+                    <!-- RESUMEN DE COMIDA -->
+                    <div class="card" style="border-left: 4px solid #2ecc71;">
+                        <h4>🍽️ Comida: Saldos Pendientes (Mes Seleccionado)</h4>
+                        <div style="display: flex; justify-content: space-around;" id="resumen-comida-valores">
+                            <!-- Dinámico -->
+                        </div>
+                    </div>
+
+                    <!-- FORMULARIO DE AGREGAR CRÉDITO -->
+                    <div class="card" style="border-top: 4px solid #f39c12;">
+                        <h4>💳 Agregar Crédito Consumo / Compra</h4>
+                        <div class="credito-form-container">
+                            <div class="credito-row-top">
+                                <input type="text" id="rc-desc" placeholder="Descripción">
+                                <input type="month" id="rc-inicio">
+                            </div>
+                            <div class="credito-row-bottom">
+                                <input type="number" id="rc-monto" placeholder="Monto" class="credito-input-sm">
+                                <input type="number" id="rc-cuotas" placeholder="Cuotas" class="credito-input-sm">
+                                <select id="rc-moneda" class="credito-select-sm">
+                                    <option value="CLP">Pesos ($)</option>
+                                    <option value="UF">UF</option>
+                                </select>
+                                <button class="credito-btn-sm" onclick="addCredito()">+ Agregar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- COLUMNA DERECHA: GASTOS DIARIOS Y FLUJO DE CAJA -->
+                <div>
+                    <div class="card" style="border-top: 4px solid #e74c3c;">
+                        <h3>📉 Gastos Diarios (Mes Seleccionado)</h3>
+                        <div style="display: flex; gap: 5px; margin-bottom: 10px; flex-wrap: wrap;">
+                            <input type="date" id="g-fecha">
+                            <input type="text" id="g-desc" placeholder="Descripción">
+                            <input type="number" id="g-monto" placeholder="Monto">
+                            <button class="btn" style="background:#e74c3c;" onclick="addGasto()">(+) Agregar</button>
+                        </div>
+                        <div class="table-scroll">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Fecha</th>
+                                        <th>Descripción</th>
+                                        <th>Monto</th>
+                                        <th>Acción</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="lista-gastos">
+                                    <!-- Dinámico -->
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="card" style="background: #1a2b4c; color: white; font-weight: bold; margin-top: 5px; margin-bottom: 0;">
+                            Total Gastado Diarios: <span id="total-gastos">$0</span>
+                        </div>
+                    </div>
+
+                    <!-- FLUJO DE CAJA CONTINUO -->
+                    <div class="card" style="background: #2c3e50; color: white; padding: 15px;" id="seccion-flujo-caja">
+                        <!-- Dinámico -->
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        
+        <!-- PESTAÑA DEUDAS -->
+        <div id="deudas" class="tab-content">
+            <h1>Deudas / Compromisos Tarjetas</h1>
+            <div class="card" style="background: #1a2b4c; color: white;">
+                <h3>Resumen General de Tarjetas</h3>
+                <div class="table-scroll">
+                    <table style="color: white;">
+                        <thead id="head-resumen"></thead>
+                        <tbody id="body-resumen"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="card">
+                <input type="text" id="cat-nombre" placeholder="Nombre categoría"><button class="btn" onclick="addCategoria()">+ Crear Categoría</button>
+            </div>
+            <div id="contenedor-categorias"></div>
+        </div>
+
+        <!-- PESTAÑA VIAJES -->
+        <div id="viajes" class="tab-content">
+            <h1>Gestión de Viajes</h1>
+            <div class="card">
+                <input type="text" id="v-nombre" placeholder="Nombre del Viaje (Ej: Brasil 2026)">
+                <input type="number" id="v-num-personas" placeholder="Cant. Personas" min="1" onchange="generarCamposNombre()">
+                <div id="campos-nombres" style="margin: 10px 0;"></div>
+                <button class="btn" onclick="crearViaje()">+ Crear Viaje</button>
+            </div>
+            <div id="contenedor-viajes"></div>
+        </div>
+
+        <!-- PESTAÑA COMIDA -->
+        <div id="comida" class="tab-content">
+            <h1>Divisor de Cuentas de Comidas</h1>
+            <div id="contenedor-comidas"></div>
+        </div>
+    </div>
+
+    <script>
+        let db = JSON.parse(localStorage.getItem('finanzasElle')) || { categorias: [], gastos: [], viajes: [], comidas: [], creditos: [], sueldo: 1500000, valorUf: 38000, usuarioPrincipal: "Seba", gastosFijos: {}, bonos: {} };
+        if (!db.comidas) db.comidas = [];
+        if (!db.creditos) db.creditos = [];
+        if (!db.sueldo || db.sueldo === 0) db.sueldo = 1500000;
+        if (!db.valorUf) db.valorUf = 38000;
+        if (!db.usuarioPrincipal) db.usuarioPrincipal = "Seba";
+        if (!db.gastosFijos) db.gastosFijos = {};
+        if (!db.bonos) db.bonos = {};
+        
+        let openViajes = JSON.parse(localStorage.getItem('openViajes')) || {};
+        let openGastos = JSON.parse(localStorage.getItem('openGastosViajes')) || {};
+        
+        let tempParticipantesComida = [db.usuarioPrincipal];
+        let tempNombreComida = '';
+        let tempPropinaComida = '10';
+        let tempDescuentoValorComida = '0';
+        let tempDescuentoTipoComida = 'porcentaje';
+
+        // Nuevos ítems solicitados
+        const itemsGastosFijos = [
+            "Telefono", "Internet", "Luz", "Agua", "Arriendo", 
+            "Estacionamiento", "Seguro Incendio", "Gastos Comunes"
+        ];
+
+        function formatCLP(value) {
+            return '$' + Math.round(value).toLocaleString('es-CL');
+        }
+
+        function save() { localStorage.setItem('finanzasElle', JSON.stringify(db)); }
+        function saveOpen() { localStorage.setItem('openViajes', JSON.stringify(openViajes)); }
+        function resetApp() { if(confirm("¿Seguro que quieres borrar todo, reina?")) { localStorage.clear(); location.reload(); } }
+
+        function openTab(evt, tabName) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+            evt.currentTarget.classList.add('active');
+            renderTodo();
+        }
+
+        function cambiarMesGlobal() { renderTodo(); }
+        function cambiarValorUF() { db.valorUf = parseFloat(document.getElementById('global-valor-uf').value) || 38000; save(); renderTodo(); }
+        
+        function cambiarUsuarioPrincipal() { 
+            let viejoUser = db.usuarioPrincipal;
+            let nuevoUser = document.getElementById('global-usuario-principal').value.trim() || "Seba";
+            db.usuarioPrincipal = nuevoUser;
+            
+            let idx = tempParticipantesComida.indexOf(viejoUser);
+            if (idx !== -1) { tempParticipantesComida[idx] = nuevoUser; } 
+            else if (!tempParticipantesComida.includes(nuevoUser)) { tempParticipantesComida.unshift(nuevoUser); }
+            
+            save(); renderTodo(); 
+        }
+
+        function toggleOpen(el, vIdx) { openViajes[vIdx] = el.open; saveOpen(); }
+        function toggleOpenGasto(el, vIdx, gIdx) { openGastos[vIdx + '-' + gIdx] = el.open; localStorage.setItem('openGastosViajes', JSON.stringify(openGastos)); }
+
+        function togglePagado(vIdx, gIdx, pIdx, cIdx) {
+            let gasto = db.viajes[vIdx].gastos[gIdx];
+            if (!gasto.estados) gasto.estados = gasto.repartido.map(() => Array(gasto.cuotas).fill(false));
+            gasto.estados[pIdx][cIdx] = !gasto.estados[pIdx][cIdx];
+            save(); renderTodo();
+        }
+
+        function addCategoria() { let nombre = document.getElementById('cat-nombre').value; if(nombre.trim() !== "") { db.categorias.push({ nombre: nombre, compras: [] }); document.getElementById('cat-nombre').value = ''; save(); renderTodo(); } }
+        function addCompra(idx) { let desc = document.getElementById(`desc-${idx}`).value; let inicio = document.getElementById(`inicio-${idx}`).value; let total = parseFloat(document.getElementById(`total-${idx}`).value); let cuotas = parseInt(document.getElementById(`cuotas-${idx}`).value); if(desc && inicio && !isNaN(total) && !isNaN(cuotas) && cuotas > 0) { db.categorias[idx].compras.push({ desc, inicio, total, cuotas, montoCuota: total/cuotas }); save(); renderTodo(); } else { alert("Faltan datos."); } }
+        function editarCompra(catI, compI) { let deleteItem = db.categorias[catI].compras[compI]; let nuevoTotal = parseFloat(prompt("Modificar total:", deleteItem.total)); let nuevasCuotas = parseInt(prompt("Modificar cuotas:", deleteItem.cuotas)); if(!isNaN(nuevoTotal) && nuevasCuotas > 0) { deleteItem.total = nuevoTotal; deleteItem.cuotas = nuevasCuotas; deleteItem.montoCuota = nuevoTotal/nuevasCuotas; save(); renderTodo(); } }
+        function eliminarCategoria(i) { db.categorias.splice(i, 1); save(); renderTodo(); }
+        function eliminarCompra(cI, oI) { db.categorias[cI].compras.splice(oI, 1); save(); renderTodo(); }
+        
+        function generarCamposNombre() { let num = parseInt(document.getElementById('v-num-personas').value) || 0; let contenedor = document.getElementById('campos-nombres'); contenedor.innerHTML = ''; if (num > 1) { contenedor.innerHTML += `<input type="text" value="${db.usuarioPrincipal}" class="input-nombre" readonly style="background:#eee; width:80px; margin-right: 5px;">`; for (let i = 1; i < num; i++) contenedor.innerHTML += `<input type="text" class="input-nombre" placeholder="Nombre ${i+1}" style="width:80px; margin-right: 5px;">`; } }
+        function crearViaje() { let nombreInput = document.getElementById('v-nombre'); let numPersonas = parseInt(document.getElementById('v-num-personas').value) || 0; let participantes = numPersonas === 1 ? [db.usuarioPrincipal] : Array.from(document.querySelectorAll('.input-nombre')).map(i => i.value.trim()).filter(v => v); if(nombreInput.value.trim() !== "" && participantes.length > 0) { db.viajes.push({ nombre: nombreInput.value, parts: participantes, gastos: [] }); save(); renderTodo(); } }
+        function addGastoViaje(vIdx) { let viaje = db.viajes[vIdx]; let desc = document.getElementById(`v-desc-${vIdx}`).value; let inicio = document.getElementById(`v-inicio-${vIdx}`).value; let monto = parseFloat(document.getElementById(`v-monto-${vIdx}`).value); let cuotas = parseInt(document.getElementById(`v-cuotas-${vIdx}`).value) || 1; if(!desc || isNaN(monto) || !inicio) return alert("Falta datos."); let nuevoGasto = {desc, inicio, pagadoPor: document.getElementById(`v-pagado-${vIdx}`).value, monto, cuotas, repartido: Array.from(document.querySelectorAll(`.check-${vIdx}:checked`)).map(c => c.value)}; viaje.gastos.push(nuevoGasto); save(); renderTodo(); }
+        
+        function editarCuotas(vIdx, gIdx) { 
+            let el = document.getElementById(`edit-cuotas-${vIdx}-${gIdx}`);
+            if(el.style.display === 'block') { el.style.display = 'none'; return; }
+            let gasto = db.viajes[vIdx].gastos[gIdx];
+            let cuotaBase = (gasto.monto / gasto.repartido.length) / gasto.cuotas;
+            let montos = gasto.montosManuales || Array(gasto.cuotas).fill(cuotaBase);
+            let inputsHTML = montos.map((m, i) => `<div style="margin-bottom: 5px;"><label>Cuota ${i+1}:</label><input type="number" class="input-cuota-${vIdx}-${gIdx}" value="${m.toFixed(2)}" style="width: 100px; padding: 3px;"></div>`).join('');
+            el.innerHTML = `<div style="padding: 10px; border: 1px solid #ddd; margin-top: 10px; border-radius: 5px;"><h5>Editar Montos: ${gasto.desc}</h5>${inputsHTML}<button class="btn" onclick="guardarCuotas(${vIdx}, ${gIdx})">Guardar</button><button class="btn-delete" onclick="document.getElementById('edit-cuotas-${vIdx}-${gIdx}').style.display='none'">Cancelar</button></div>`;
+            el.style.display = 'block';
+        }
+
+        function guardarCuotas(vIdx, gIdx) {
+            let gasto = db.viajes[vIdx].gastos[gIdx];
+            let inputs = document.querySelectorAll(`.input-cuota-${vIdx}-${gIdx}`);
+            gasto.montosManuales = Array.from(inputs).map(i => parseFloat(i.value) || 0);
+            save(); renderTodo();
+        }
+        
+        function addGasto() { 
+            let fecha = document.getElementById('g-fecha').value; 
+            let desc = document.getElementById('g-desc').value; 
+            let monto = parseFloat(document.getElementById('g-monto').value); 
+            if(fecha && desc && !isNaN(monto)) { 
+                db.gastos.push({fecha, desc, monto}); 
+                document.getElementById('g-desc').value = '';
+                document.getElementById('g-monto').value = '';
+                save(); renderTodo(); 
+            } else { alert("Faltan datos en Gastos Diarios."); }
+        }
+
+        function eliminarGastoDiario(idx) { db.gastos.splice(idx, 1); save(); renderTodo(); }
+        function actualizarSueldo() { db.sueldo = parseFloat(document.getElementById('r-sueldo').value) || 0; save(); renderTodo(); }
+        
+        function actualizarBono() {
+            let mesGlobalSelect = document.getElementById('mes-selector-global').value;
+            if (!db.bonos) db.bonos = {};
+            db.bonos[mesGlobalSelect] = parseFloat(document.getElementById('r-bono').value) || 0;
+            save(); renderTodo();
+        }
+
+        function updateGastoFijo(item, mesKey, valor) {
+            if (!db.gastosFijos[mesKey]) db.gastosFijos[mesKey] = {};
+            db.gastosFijos[mesKey][item] = parseFloat(valor) || 0;
+            save(); renderTodo();
+        }
+
+        function addCredito() {
+            let desc = document.getElementById('rc-desc').value.trim();
+            let inicio = document.getElementById('rc-inicio').value;
+            let monto = parseFloat(document.getElementById('rc-monto').value);
+            let cuotas = parseInt(document.getElementById('rc-cuotas').value);
+            let moneda = document.getElementById('rc-moneda').value;
+            if(desc && inicio && !isNaN(monto) && !isNaN(cuotas) && cuotas > 0) {
+                db.creditos.push({ desc, inicio, total: monto, cuotas, montoCuota: monto/cuotas, moneda: moneda });
+                document.getElementById('rc-desc').value = '';
+                document.getElementById('rc-monto').value = '';
+                document.getElementById('rc-cuotas').value = '';
+                save(); renderTodo();
+            } else { alert("Faltan datos para ingresar el Crédito."); }
+        }
+
+        function eliminarCredito(idx) { db.creditos.splice(idx, 1); save(); renderTodo(); }
+
+        function obtenerSaldosComida(mesFiltro) {
+            const deudasComidaGlobales = {};
+            let comidasFiltradas = db.comidas;
+            if (mesFiltro) {
+                comidasFiltradas = db.comidas.filter(c => !c.fecha || c.fecha.substring(0, 7) === mesFiltro);
+            }
+
+            comidasFiltradas.forEach(comida => {
+                let nombresParts = comida.participantes.map(p => p.nombre);
+                let totalSubtotalGeneral = 0;
+                let subtotalPorPersona = {};
+                nombresParts.forEach(n => {
+                    subtotalPorPersona[n] = 0;
+                    if (n !== db.usuarioPrincipal && !deudasComidaGlobales[n]) deudasComidaGlobales[n] = 0;
+                });
+                if (!comida.items) comida.items = [];
+                comida.items.forEach(item => {
+                    totalSubtotalGeneral += item.monto;
+                    let countChecked = (item.repartido || []).length;
+                    let cuotaItem = countChecked > 0 ? item.monto / countChecked : 0;
+                    (item.repartido || []).forEach(n => {
+                        if (subtotalPorPersona[n] !== undefined) subtotalPorPersona[n] += cuotaItem;
+                    });
+                });
+                let descuentoTotalGeneral = 0;
+                if (comida.descuento.valor > 0) {
+                    descuentoTotalGeneral = comida.descuento.tipo === 'porcentaje' ? totalSubtotalGeneral * (comida.descuento.valor / 100) : comida.descuento.valor;
+                }
+                nombresParts.forEach(n => {
+                    let proporcion = totalSubtotalGeneral > 0 ? (subtotalPorPersona[n] / totalSubtotalGeneral) : 0;
+                    let descSuyo = descuentoTotalGeneral * proporcion;
+                    let propinaSuya = Math.max(0, subtotalPorPersona[n] - descSuyo) * (comida.propina / 100);
+                    let totalFinalPersona = Math.round(Math.max(0, (subtotalPorPersona[n] - descSuyo) + propinaSuya));
+                    if (n === db.usuarioPrincipal && comida.pagadoPor !== db.usuarioPrincipal) {
+                        deudasComidaGlobales[comida.pagadoPor] -= totalFinalPersona;
+                    } else if (n !== db.usuarioPrincipal && comida.pagadoPor === db.usuarioPrincipal) {
+                        deudasComidaGlobales[n] += totalFinalPersona;
+                    }
+                });
+            });
+            return deudasComidaGlobales;
+        }
+
+        function renderComida() {
+            let mesGlobalSelect = document.getElementById('mes-selector-global').value;
+            let previousSelectedPagador = document.getElementById('c-pagadoPor') ? document.getElementById('c-pagadoPor').value : db.usuarioPrincipal;
+            const deudasComidaGlobales = obtenerSaldosComida(mesGlobalSelect);
+            const meDebenComidaList = Object.entries(deudasComidaGlobales).filter(([,s]) => s > 0.5);
+            const deboComidaList = Object.entries(deudasComidaGlobales).filter(([,s]) => s < -0.5);
+
+            let cuadroGlobalHTML = `
+            <div class="card" style="font-size: 14px; background: #e8f6f3; margin-bottom: 15px;">
+                <h4>📊 Resumen de Comidas en el Mes Global (${mesGlobalSelect})</h4>
+                <div style="display: flex; justify-content: space-around; text-align: center;">
+                    <div>
+                        <strong>Me Deben</strong>
+                        ${meDebenComidaList.length > 0 ? `<ul style="list-style: none; padding: 0; margin: 5px 0 0 0;">${meDebenComidaList.map(([p,s]) => `<li><strong>${p}</strong>: ${formatCLP(s)}</li>`).join('')}</ul>` : '<p style="font-size:12px; color: #555; margin: 5px 0 0 0;">Nadie te debe este mes.</p>'}
+                    </div>
+                    <div>
+                        <strong>Debo a</strong>
+                        ${deboComidaList.length > 0 ? `<ul style="list-style: none; padding: 0; margin: 5px 0 0 0;">${deboComidaList.map(([p,s]) => `<li><strong>${p}</strong>: ${formatCLP(-s)}</li>`).join('')}</ul>` : '<p style="font-size:12px; color: #555; margin: 5px 0 0 0;">No debes a nadie este mes.</p>'}
+                    </div>
+                </div>
+            </div>`;
+
+            let creatorHTML = `
+                <div class="card" style="padding: 15px; margin-bottom: 15px;">
+                    <h3>🍽️ Crear Nuevo Evento de Comida</h3>
+                    <div class="form-row">
+                        <input type="text" id="c-nombre" value="${tempNombreComida}" placeholder="Nombre del evento (Ej: Almuerzo)" style="width: 200px;">
+                        <input type="month" id="c-fecha" value="${mesGlobalSelect}">
+                        <div>
+                            <label>Propina (%): </label>
+                            <input type="number" id="c-propina" value="${tempPropinaComida}" style="width: 40px;">
+                        </div>
+                        <div>
+                            <label>Desc: </label>
+                            <input type="number" id="c-descuento-valor" value="${tempDescuentoValorComida}" style="width: 50px;">
+                            <select id="c-descuento-tipo">
+                                <option value="porcentaje" ${tempDescuentoTipoComida === 'porcentaje' ? 'selected' : ''}>%</option>
+                                <option value="fijo" ${tempDescuentoTipoComida === 'fijo' ? 'selected' : ''}>$</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <label>Participantes:</label>
+                        <input type="text" id="c-participante-nombre" placeholder="Nombre participante" style="width: 130px;">
+                        <button class="btn" onclick="addParticipanteComidaTemp()">+ Añadir</button>
+                        <div id="c-participantes-temp" style="display: inline-block;">
+                            ${tempParticipantesComida.map((p, i) => `<span class="chip">${p} ${p !== db.usuarioPrincipal ? `<span class="close" onclick="removeParticipanteComidaTemp(${i})">&times;</span>` : ''}</span>`).join('')}
+                        </div>
+                    </div>
+                    <div class="form-row" style="margin-top: 15px;">
+                        <label>Seleccionar quien pagó: </label>
+                        <select id="c-pagadoPor" style="padding: 4px 10px; width: 150px;">
+                            ${tempParticipantesComida.map(p => `<option value="${p}" ${p === previousSelectedPagador ? 'selected' : ''}>${p}</option>`).join('')}
+                        </select>
+                    </div>
+                    <button class="btn" onclick="crearComida()" style="margin-top: 10px; background:#1a2b4c; padding: 7px 15px; font-size: 12px;">+ Crear Evento</button>
+                </div>
+            `;
+
+            let comidasAMostrar = db.comidas.filter(c => !c.fecha || c.fecha.substring(0, 7) === mesGlobalSelect);
+
+            document.getElementById('contenedor-comidas').innerHTML = cuadroGlobalHTML + creatorHTML + comidasAMostrar.map((comida, cIdx) => {
+                let actualIndexOriginal = db.comidas.findIndex(x => x.id === comida.id);
+                let nombresParts = comida.participantes.map(p => p.nombre);
+                let totalSubtotalGeneral = 0;
+                let subtotalPorPersona = {};
+                nombresParts.forEach(n => subtotalPorPersona[n] = 0);
+                if (!comida.items) comida.items = [];
+
+                let filasItemsHTML = comida.items.map((item, itemIdx) => {
+                    totalSubtotalGeneral += item.monto;
+                    let countChecked = (item.repartido || []).length;
+                    let cuotaItem = countChecked > 0 ? item.monto / countChecked : 0;
+                    (item.repartido || []).forEach(n => {
+                        if (subtotalPorPersona[n] !== undefined) subtotalPorPersona[n] += cuotaItem;
+                    });
+
+                    return `<tr>
+                        <td style="text-align: left;"><button class="btn-delete" onclick="eliminarItemComida(${actualIndexOriginal}, ${itemIdx})">🗑️</button> ${item.desc}</td>
+                        <td><strong>${formatCLP(item.monto)}</strong></td>
+                        ${nombresParts.map(n => {
+                            let isChecked = (item.repartido || []).includes(n) ? 'checked' : '';
+                            return `<td><input type="checkbox" ${isChecked} onchange="toggleRepartidoItemComida(${actualIndexOriginal}, ${itemIdx}, '${n}')"></td>`;
+                        }).join('')}
+                    </tr>`;
+                }).join('');
+
+                let descuentoTotalGeneral = 0;
+                if (comida.descuento.valor > 0) {
+                    descuentoTotalGeneral = comida.descuento.tipo === 'porcentaje' ? totalSubtotalGeneral * (comida.descuento.valor / 100) : comida.descuento.valor;
+                }
+
+                let listadoDescuentosPersona = [];
+                let listadoPropinasPersona = [];
+                let listadoTotalesPersona = [];
+                let resumenCuentasHTML = "";
+
+                nombresParts.forEach(n => {
+                    let proporcion = totalSubtotalGeneral > 0 ? (subtotalPorPersona[n] / totalSubtotalGeneral) : 0;
+                    let descSuyo = descuentoTotalGeneral * proporcion;
+                    let propinaSuya = Math.max(0, subtotalPorPersona[n] - descSuyo) * (comida.propina / 100);
+                    let totalSuyo = Math.round(Math.max(0, (subtotalPorPersona[n] - descSuyo) + propinaSuya));
+
+                    listadoDescuentosPersona.push(descSuyo);
+                    listadoPropinasPersona.push(propinaSuya);
+                    listadoTotalesPersona.push(totalSuyo);
+
+                    if (n !== comida.pagadoPor && totalSuyo > 0) {
+                        resumenCuentasHTML += `<li>🙋‍♂️ <strong>${n}</strong> le debe a <strong>${comida.pagadoPor}</strong>: <strong style="font-size:12px; color:#e74c3c;">${formatCLP(totalSuyo)}</strong></li>`;
+                    }
+                });
+
+                if (!resumenCuentasHTML) { resumenCuentasHTML = `<li>✅ ¡Cuentas claras!</li>`; }
+                let mTotalGeneral = Math.round(listadoTotalesPersona.reduce((a, b) => a + b, 0));
+
+                return `
+                <div class="card" style="border-top: 4px solid #1a2b4c;">
+                    <details open>
+                        <summary style="cursor:pointer; font-weight:bold; font-size: 13px; padding: 5px; display: flex; justify-content: space-between; align-items: center; outline: none;">
+                            <div>
+                                <span style="font-size:14px; margin-right:5px;">🍽️</span> 
+                                <strong>${comida.nombre}</strong> 
+                                <span style="font-size:10px; color:#555; font-weight:normal; margin-left:10px;">(Total: ${formatCLP(mTotalGeneral)} | Pagado: ${comida.pagadoPor} | Mes: ${comida.fecha || 'No especificado'})</span>
+                            </div>
+                            <button class="btn-delete" style="padding: 2px 6px; font-size:10px;" onclick="event.stopPropagation(); eliminarComida(${actualIndexOriginal})">🗑️ Eliminar</button>
+                        </summary>
+                        
+                        <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #eee;">
+                            <div class="table-scroll">
+                                <table>
+                                    <thead>
+                                        <tr style="background:#f2f2f2;">
+                                            <th>Ítems / Comida</th>
+                                            <th>Monto</th>
+                                            ${nombresParts.map(n => `<th>${n}</th>`).join('')}
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${filasItemsHTML || `<tr><td colspan="${2 + nombresParts.length}">No hay ítems agregados aún.</td></tr>`}
+                                        
+                                        <tr style="background:#edf2f7;">
+                                            <td style="text-align: left;">➕ <input type="text" id="item-desc-${actualIndexOriginal}" placeholder="Ej: Completo" style="width:140px; font-size:10px;"></td>
+                                            <td>$ <input type="number" id="item-monto-${actualIndexOriginal}" placeholder="Monto" style="width:70px; font-size:10px;"></td>
+                                            <td colspan="${nombresParts.length}" style="text-align:left;"><button class="btn" onclick="addItemComida(${actualIndexOriginal})">+ AGREGAR ÍTEM</button></td>
+                                        </tr>
+
+                                        <tr class="row-total-destacado">
+                                            <td style="text-align: right;">SUMA SUBTOTAL:</td>
+                                            <td>${formatCLP(totalSubtotalGeneral)}</td>
+                                            ${nombresParts.map(n => `<td>${formatCLP(subtotalPorPersona[n])}</td>`).join('')}
+                                        </tr>
+                                        <tr class="row-total-destacado" style="color: #e74c3c;">
+                                            <td style="text-align: right;">DESCUENTO:</td>
+                                            <td>-${formatCLP(descuentoTotalGeneral)}</td>
+                                            ${listadoDescuentosPersona.map(desc => `<td>-${formatCLP(desc)}</td>`).join('')}
+                                        </tr>
+                                        <tr class="row-total-destacado" style="color: #27ae60;">
+                                            <td style="text-align: right;">PROPINA (${comida.propina}%):</td>
+                                            <td>+${formatCLP(Math.max(0, totalSubtotalGeneral - descuentoTotalGeneral) * (comida.propina / 100))}</td>
+                                            ${listadoPropinasPersona.map(prop => `<td>+${formatCLP(prop)}</td>`).join('')}
+                                        </tr>
+                                        <tr class="row-total-final">
+                                            <td style="text-align: right;">MONTO TOTAL:</td>
+                                            <td>${formatCLP(mTotalGeneral)}</td>
+                                            ${listadoTotalesPersona.map(tot => `<td>${formatCLP(tot)}</td>`).join('')}
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="comida-resumen" style="background:#ebf5fb; border-left-color:#3498db; margin-top: 15px;">
+                                <h4>📊 RESUMEN DE PAGOS ACORTADO:</h4>
+                                <ul style="padding-left: 15px; list-style-type: none; line-height: 1.8;">
+                                    ${resumenCuentasHTML}
+                                </ul>
+                            </div>
+                        </div>
+                    </details>
+                </div>
+            `}).join('');
+        }
+
+        function salvarValoresFormularioTemporal() {
+            tempNombreComida = document.getElementById('c-nombre') ? document.getElementById('c-nombre').value : '';
+            tempPropinaComida = document.getElementById('c-propina') ? document.getElementById('c-propina').value : '10';
+            tempDescuentoValorComida = document.getElementById('c-descuento-valor') ? document.getElementById('c-descuento-valor').value : '0';
+            tempDescuentoTipoComida = document.getElementById('c-descuento-tipo') ? document.getElementById('c-descuento-tipo').value : 'porcentaje';
+        }
+
+        function addParticipanteComidaTemp() {
+            salvarValoresFormularioTemporal();
+            const input = document.getElementById('c-participante-nombre');
+            const name = input.value.trim();
+            if (name && !tempParticipantesComida.includes(name)) { tempParticipantesComida.push(name); input.value = ''; renderComida(); }
+        }
+        
+        function removeParticipanteComidaTemp(index) { 
+            if(tempParticipantesComida[index] !== db.usuarioPrincipal) { 
+                salvarValoresFormularioTemporal();
+                tempParticipantesComida.splice(index, 1); 
+                renderComida(); 
+            } 
+        }
+
+        function crearComida() {
+            const nombre = document.getElementById('c-nombre').value.trim();
+            const pagadoPor = document.getElementById('c-pagadoPor').value;
+            const fecha = document.getElementById('c-fecha').value;
+            const propina = parseFloat(document.getElementById('c-propina').value) || 0;
+            const descuentoValor = parseFloat(document.getElementById('c-descuento-valor').value) || 0;
+            const descuentoTipo = document.getElementById('c-descuento-tipo').value;
+            if (!nombre || !pagadoPor) return alert("Completa el nombre del evento.");
+
+            db.comidas.push({
+                id: Date.now(), nombre, pagadoPor, propina, fecha,
+                descuento: { valor: descuentoValor, tipo: descuentoTipo },
+                participantes: tempParticipantesComida.map(p => ({ nombre: p })), items: []
+            });
+            tempParticipantesComida = [db.usuarioPrincipal]; tempNombreComida = ''; tempPropinaComida = '10'; tempDescuentoValorComida = '0'; tempDescuentoTipoComida = 'porcentaje';
+            save(); renderTodo();
+        }
+
+        function addItemComida(cIdx) {
+            const desc = document.getElementById(`item-desc-${cIdx}`).value.trim();
+            const monto = parseFloat(document.getElementById(`item-monto-${cIdx}`).value);
+            if (!desc || isNaN(monto) || monto <= 0) return alert("Ingresa detalle y monto válido.");
+            let todosLosNombres = db.comidas[cIdx].participantes.map(p => p.nombre);
+            db.comidas[cIdx].items.push({ desc, monto, repartido: todosLosNombres });
+            save(); renderTodo();
+        }
+
+        function toggleRepartidoItemComida(cIdx, itemIdx, nombre) {
+            let item = db.comidas[cIdx].items[itemIdx];
+            if (!item.repartido) item.repartido = [];
+            if (item.repartido.includes(nombre)) { item.repartido = item.repartido.filter(n => n !== nombre); } 
+            else { item.repartido.push(nombre); }
+            save(); renderTodo();
+        }
+
+        function eliminarItemComida(cIdx, itemIdx) { db.comidas[cIdx].items.splice(itemIdx, 1); save(); renderTodo(); }
+        function eliminarComida(cIdx) { if(confirm("¿Eliminar este evento de comida?")) { db.comidas.splice(cIdx, 1); save(); renderTodo(); } }
+        function eliminarViaje(idx) {
+            if (confirm("¿Estás segura de que quieres eliminar este viaje? Esta acción no se puede deshacer, reina.")) {
+                db.viajes.splice(idx, 1);
+                save();
+                renderTodo();
+            }
+        }
+
+        function renderTodo() {
+            document.getElementById('r-sueldo').value = db.sueldo || 0;
+            document.getElementById('global-valor-uf').value = db.valorUf || 38000;
+            document.getElementById('global-usuario-principal').value = db.usuarioPrincipal;
+            document.getElementById('titulo-resumen-viajes').innerText = `✈️ Viajes: Deudas con ${db.usuarioPrincipal}`;
+
+            let mesGlobalSelect = document.getElementById('mes-selector-global').value;
+            if(!mesGlobalSelect) {
+                let hoy = new Date();
+                mesGlobalSelect = `${hoy.getFullYear()}-${String(hoy.getMonth() + 1).padStart(2, '0')}`;
+                document.getElementById('mes-selector-global').value = mesGlobalSelect;
+            }
+            
+            // Cargar bono actual en el input
+            document.getElementById('r-bono').value = (db.bonos && db.bonos[mesGlobalSelect]) ? db.bonos[mesGlobalSelect] : 0;
+
+            const vista = new Date(mesGlobalSelect + "-02");
+            let meses = [];
+            for(let i=0; i<5; i++) { 
+                let d = new Date(vista); 
+                d.setMonth(d.getMonth() + i); 
+                meses.push(d); 
+            }
+            
+            let totalMesesProyeccion = Array(5).fill(0);
+            let mesActualKey = mesGlobalSelect;
+            
+            // RENDERIZAR TABLA DE GASTOS FIJOS (SUPERIOR)
+            let htmlHeadGastosFijos = `<tr><th>Item</th>${meses.map(m => `<th>${m.toLocaleDateString('es-CL', {month:'short', year:'2-digit'})}</th>`).join('')}</tr>`;
+            document.getElementById('head-gastos-fijos').innerHTML = htmlHeadGastosFijos;
+
+            // Almacén dinámico temporal de los montos para poder agruparlos abajo
+            let matrizGastosFijosValores = meses.map(() => ({}));
+
+            let htmlBodyGastosFijos = itemsGastosFijos.map(item => {
+                let rowHtml = `<tr><td style="text-align:left; font-weight:bold;">${item}</td>`;
+                let valorBase = (db.gastosFijos[mesActualKey] && db.gastosFijos[mesActualKey][item]) ? db.gastosFijos[mesActualKey][item] : 0;
+                
+                meses.forEach((mes, mIdx) => {
+                    matrizGastosFijosValores[mIdx][item] = valorBase;
+                    if (mIdx === 0) {
+                        rowHtml += `<td><input type="number" class="input-gastos-fijos" value="${valorBase || ''}" placeholder="0" onchange="updateGastoFijo('${item}', '${mesActualKey}', this.value)"></td>`;
+                    } else {
+                        rowHtml += `<td><input type="number" class="input-gastos-fijos" value="${valorBase || ''}" placeholder="0" disabled></td>`;
+                    }
+                });
+                return rowHtml + `</tr>`;
+            }).join('');
+            document.getElementById('body-gastos-fijos').innerHTML = htmlBodyGastosFijos;
+
+
+            // TABLA RESUMEN GENERAL (INFERIOR)
+            let htmlTablaResumen = `
+                <thead>
+                    <tr style="background:#1a2b4c; color:white;">
+                        <th>Descripción / Flujo</th>
+                        ${meses.map(m => `<th>${m.toLocaleDateString('es-CL', {month:'short', year:'2-digit'})}</th>`).join('')}
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="text-align:left; font-weight:bold; background:#e8f8f5;">💼 Sueldo Fijo</td>
+                        ${meses.map(() => `<td>${formatCLP(db.sueldo)}</td>`).join('')}
+                    </tr>
+                    <tr>
+                        <td style="text-align:left; font-weight:bold; background:#e8f8f5;">🎁 Bono Variable</td>
+                        ${meses.map((mes, mIdx) => {
+                            let loopMesKey = `${mes.getFullYear()}-${String(mes.getMonth() + 1).padStart(2, '0')}`;
+                            let bonoMes = (mIdx === 0 && db.bonos && db.bonos[loopMesKey]) ? db.bonos[loopMesKey] : 0;
+                            return `<td>${formatCLP(bonoMes)}</td>`;
+                        }).join('')}
+                    </tr>
+                    <tr style="background:#d1f2eb; font-weight:bold;">
+                        <td style="text-align:left; padding-left:10px;">➕ Ingreso Total</td>
+                        ${meses.map((mes, mIdx) => {
+                            let loopMesKey = `${mes.getFullYear()}-${String(mes.getMonth() + 1).padStart(2, '0')}`;
+                            let bonoMes = (mIdx === 0 && db.bonos && db.bonos[loopMesKey]) ? db.bonos[loopMesKey] : 0;
+                            return `<td>${formatCLP(db.sueldo + bonoMes)}</td>`;
+                        }).join('')}
+                    </tr>
+            `;
+
+            // AGREGAR SECCIÓN SERVICIOS Y ARRIENDO AGRUPADO DESDE LA MATRIZ DE GASTOS FIJOS
+            htmlTablaResumen += `<tr><td colspan="6" style="text-align:left; background:#f2f4f4; font-weight:bold;">🏠 Servicios y Arriendo</td></tr>`;
+            
+            // 1. Servicios: Teléfono + Internet + Luz + Agua
+            htmlTablaResumen += `<tr><td style="text-align:left; padding-left:10px;">🛠️ Servicios (Tel, Net, Luz, Agua)</td>`;
+            meses.forEach((_, mIdx) => {
+                let v = matrizGastosFijosValores[mIdx];
+                let sumaServicios = (v["Telefono"]||0) + (v["Internet"]||0) + (v["Luz"]||0) + (v["Agua"]||0);
+                totalMesesProyeccion[mIdx] += sumaServicios;
+                htmlTablaResumen += `<td>${formatCLP(sumaServicios)}</td>`;
+            });
+            htmlTablaResumen += `</tr>`;
+
+            // 2. Arriendo Final: Arriendo - Estacionamiento - Seguro Incendio
+            htmlTablaResumen += `<tr><td style="text-align:left; padding-left:10px;">🔑 Arriendo Final</td>`;
+            meses.forEach((_, mIdx) => {
+                let v = matrizGastosFijosValores[mIdx];
+                let arriendoFinal = (v["Arriendo"]||0) - (v["Estacionamiento"]||0) - (v["Seguro Incendio"]||0);
+                totalMesesProyeccion[mIdx] += arriendoFinal;
+                htmlTablaResumen += `<td>${formatCLP(arriendoFinal)}</td>`;
+            });
+            htmlTablaResumen += `</tr>`;
+
+            // 3. Gastos Comunes solo en la parte de abajo
+            htmlTablaResumen += `<tr><td style="text-align:left; padding-left:10px;">🏢 Gastos Comunes</td>`;
+            meses.forEach((_, mIdx) => {
+                let v = matrizGastosFijosValores[mIdx];
+                let ggcc = (v["Gastos Comunes"]||0);
+                totalMesesProyeccion[mIdx] += ggcc;
+                htmlTablaResumen += `<td>${formatCLP(ggcc)}</td>`;
+            });
+            htmlTablaResumen += `</tr>`;
+
+
+            // SECCIÓN CRÉDITOS
+            if(db.creditos && db.creditos.length > 0){
+                htmlTablaResumen += `<tr><td colspan="6" style="text-align:left; background:#f2f4f4; font-weight:bold;">💳 Créditos Activos</td></tr>`;
+                db.creditos.forEach((c, cIdx) => {
+                    let esUF = (c.moneda === 'UF');
+                    let badgeMoneda = esUF ? `<span style="color:#f39c12;font-weight:bold;">[UF]</span>` : `<span style="color:#2ecc71;">[$]</span>`;
+                    
+                    htmlTablaResumen += `<tr><td style="text-align:left; padding-left:10px;">${c.desc} ${badgeMoneda} <button class="btn-delete" style="padding:1px 4px; font-size:8px;" onclick="eliminarCredito(${cIdx})">×</button></td>`;
+                    
+                    meses.forEach((mes, mIdx) => {
+                        let inicio = new Date(c.inicio + "-02");
+                        let diff = (mes.getFullYear() - inicio.getFullYear()) * 12 + (mes.getMonth() - inicio.getMonth());
+                        let montoCuotaEnMoneda = (diff >= 0 && diff < c.cuotas) ? c.montoCuota : 0;
+                        
+                        let montoFinalCLP = esUF ? (montoCuotaEnMoneda * db.valorUf) : montoCuotaEnMoneda;
+                        totalMesesProyeccion[mIdx] += montoFinalCLP;
+                        
+                        if(montoCuotaEnMoneda > 0) {
+                            htmlTablaResumen += `<td>${formatCLP(montoFinalCLP)} <small style="color:#777;">(${c.moneda === 'UF' ? montoCuotaEnMoneda.toFixed(1) + ' UF' : ''})</small></td>`;
+                        } else {
+                            htmlTablaResumen += `<td>$0</td>`;
+                        }
+                    });
+                    htmlTablaResumen += `</tr>`;
+                });
+            }
+
+            // SECCIÓN COMPROMISOS / TARJETAS
+            if(db.categorias && db.categorias.length > 0){
+                htmlTablaResumen += `<tr><td colspan="6" style="text-align:left; background:#f2f4f4; font-weight:bold;">📌 Compromisos / Deudas Tarjetas</td></tr>`;
+                db.categorias.forEach(cat => {
+                    htmlTablaResumen += `<tr><td style="text-align:left; padding-left:10px;">${cat.nombre}</td>`;
+                    meses.forEach((mes, mIdx) => {
+                        let m = cat.compras.reduce((sum, c) => {
+                            let inicio = new Date(c.inicio + "-02");
+                            let diff = (mes.getFullYear() - inicio.getFullYear()) * 12 + (mes.getMonth() - inicio.getMonth());
+                            return (diff >= 0 && diff < c.cuotas) ? sum + (c.montoCuota || 0) : sum;
+                        }, 0);
+                        totalMesesProyeccion[mIdx] += m;
+                        htmlTablaResumen += `<td>${formatCLP(m || 0)}</td>`;
+                    });
+                    htmlTablaResumen += `</tr>`;
+                });
+            }
+
+            htmlTablaResumen += `
+                <tr class="row-total-final">
+                    <td style="text-align: right;">TOTAL GASTOS Y COMPROMISOS:</td>
+                    ${totalMesesProyeccion.map(t => `<td>${formatCLP(t)}</td>`).join('')}
+                </tr>
+                </tbody>
+            `;
+            document.getElementById('tabla-proyeccion-resumen').innerHTML = htmlTablaResumen;
+
+
+            // GASTOS DIARIOS
+            let sumaGastosDiarios = 0;
+            let htmlGastos = db.gastos.filter(g => g.fecha && g.fecha.substring(0,7) === mesGlobalSelect).map((g, idx) => {
+                let originalIdx = db.gastos.findIndex(x => x.fecha === g.fecha && x.desc === g.desc && x.monto === g.monto);
+                sumaGastosDiarios += (g.monto || 0);
+                return `<tr>
+                    <td>${g.fecha}</td>
+                    <td style="text-align:left;">${g.desc}</td>
+                    <td>${formatCLP(g.monto)}</td>
+                    <td><button class="btn-delete" onclick="eliminarGastoDiario(${originalIdx})">🗑️</button></td>
+                </tr>`;
+            }).join('');
+            
+            document.getElementById('lista-gastos').innerHTML = htmlGastos || `<tr><td colspan="4">No hay gastos en este mes.</td></tr>`;
+            document.getElementById('total-gastos').innerText = formatCLP(sumaGastosDiarios);
+
+
+            // FLUJO DE CAJA NETO (Incluye sueldo + bono del mes correspondiente)
+            let bonoActual = (db.bonos && db.bonos[mesGlobalSelect]) ? db.bonos[mesGlobalSelect] : 0;
+            let ingresosTotalesMes = db.sueldo + bonoActual;
+            let deudasMesActual = totalMesesProyeccion[0] || 0; 
+            let flujoCajaNeto = ingresosTotalesMes - deudasMesActual - sumaGastosDiarios;
+
+            document.getElementById('seccion-flujo-caja').innerHTML = `
+                <h3 style="margin-top:0;">📊 Flujo de Caja Continuo (${mesGlobalSelect})</h3>
+                <div style="font-size:13px; line-height:1.6;">
+                    <div style="display:flex; justify-content:space-between;"><span>(+) Ingresos Totales (Sueldo+Bono):</span><strong>${formatCLP(ingresosTotalesMes)}</strong></div>
+                    <div style="display:flex; justify-content:space-between; color:#ff9f89;"><span>(-) Egresos Totales Calculados:</span><strong>-${formatCLP(deudasMesActual)}</strong></div>
+                    <div style="display:flex; justify-content:space-between; color:#ff9f89;"><span>(-) Gastos Diarios:</span><strong>-${formatCLP(sumaGastosDiarios)}</strong></div>
+                    <hr style="border:0; border-top:1px solid rgba(255,255,255,0.2); margin:8px 0;">
+                    <div style="display:flex; justify-content:space-between; font-size:15px; font-weight:bold; color:${flujoCajaNeto >= 0 ? '#58fa9b' : '#ff6b6b'};">
+                        <span>Saldo Líquido Disponible:</span>
+                        <span>${formatCLP(flujoCajaNeto)}</span>
+                    </div>
+                </div>
+            `;
+
+            // RESUMEN VIAJES
+            const deudasGlobales = {};
+            db.viajes.forEach(v => {
+                v.parts.forEach(p => { if (p !== db.usuarioPrincipal && !deudasGlobales[p]) deudasGlobales[p] = 0; });
+                v.gastos.forEach(g => {
+                    if (!g.repartido || g.repartido.length === 0) return;
+                    const montoPorCuotaPersona = (g.monto / g.repartido.length) / g.cuotas;
+                    g.repartido.forEach((deudor, pIdx) => {
+                        if (!g.estados) g.estados = g.repartido.map(() => Array(g.cuotas).fill(false));
+                        let montoPendiente = 0;
+                        for (let cIdx = 0; cIdx < g.cuotas; cIdx++) {
+                            if (!g.estados[pIdx] || !g.estados[pIdx][cIdx]) montoPendiente += montoPorCuotaPersona;
+                        }
+                        if (deudor === db.usuarioPrincipal && g.pagadoPor !== db.usuarioPrincipal) deudasGlobales[g.pagadoPor] -= montoPendiente;
+                        else if (deudor !== db.usuarioPrincipal && g.pagadoPor === db.usuarioPrincipal) deudasGlobales[deudor] += montoPendiente;
+                    });
+                });
+            });
+            const meDebenList = Object.entries(deudasGlobales).filter(([,s]) => s > 0.5);
+            const deboList = Object.entries(deudasGlobales).filter(([,s]) => s < -0.5);
+
+            let htmlViajesResumen = `
+                <div><strong>Me Deben:</strong> ${meDebenList.length > 0 ? meDebenList.map(([p,s]) => `<br>${p}: ${formatCLP(s)}`).join('') : 'Nadie'}</div>
+                <div><strong>Debo a:</strong> ${deboList.length > 0 ? deboList.map(([p,s]) => `<br>${p}: ${formatCLP(-s)}`).join('') : 'Nadie'}</div>
+            `;
+            document.getElementById('resumen-viajes-valores').innerHTML = htmlViajesResumen;
+
+            const deudasComidaGlobales = obtenerSaldosComida(mesGlobalSelect);
+            const meDebenComidaList = Object.entries(deudasComidaGlobales).filter(([,s]) => s > 0.5);
+            const deboComidaList = Object.entries(deudasComidaGlobales).filter(([,s]) => s < -0.5);
+
+            let htmlComidaResumen = `
+                <div><strong>Me Deben:</strong> ${meDebenComidaList.length > 0 ? meDebenComidaList.map(([p,s]) => `<br>${p}: ${formatCLP(s)}`).join('') : 'Nadie'}</div>
+                <div><strong>Debo a:</strong> ${deboComidaList.length > 0 ? deboComidaList.map(([p,s]) => `<br>${p}: ${formatCLP(-s)}`).join('') : 'Nadie'}</div>
+            `;
+            document.getElementById('resumen-comida-valores').innerHTML = htmlComidaResumen;
+
+            let mesesSeis = [];
+            for(let i=0; i<6; i++) { let d = new Date(vista); d.setMonth(d.getMonth() + i); mesesSeis.push(d); }
+            document.getElementById('head-resumen').innerHTML = '<tr><th>Categoría</th>' + mesesSeis.map(m => `<th>${m.toLocaleDateString('es-CL', {month:'short', year:'2-digit'})}</th>`).join('') + '</tr>';
+            document.getElementById('body-resumen').innerHTML = db.categorias.map(cat => {
+                let fila = `<tr><td>${cat.nombre}</td>`;
+                mesesSeis.forEach(mes => {
+                    let m = cat.compras.reduce((sum, c) => {
+                        let inicio = new Date(c.inicio + "-02");
+                        let diff = (mes.getFullYear() - inicio.getFullYear()) * 12 + (mes.getMonth() - inicio.getMonth());
+                        return (diff >= 0 && diff < c.cuotas) ? sum + (c.montoCuota || 0) : sum;
+                    }, 0);
+                    fila += `<td>${formatCLP(m || 0)}</td>`;
+                });
+                return fila + "</tr>";
+            }).join('');
+
+            document.getElementById('contenedor-categorias').innerHTML = db.categorias.map((cat, catIdx) => `
+                <div class="card">
+                    <button class="btn-delete" style="float:right" onclick="eliminarCategoria(${catIdx})">🗑️</button>
+                    <h3>${cat.nombre}</h3>
+                    <div class="table-scroll"><table><thead><tr><th>Detalle</th><th>Inicio</th><th>Total Cuotas</th><th>Restantes</th>${mesesSeis.map(m => `<th>${m.toLocaleDateString('es-CL', {month:'short', year:'2-digit'})}</th>`).join('')}<th>Acción</th></tr></thead>
+                    <tbody>${cat.compras.map((c, cIdx) => {
+                        let inicio = new Date(c.inicio + "-02");
+                        let diff = (vista.getFullYear() - inicio.getFullYear()) * 12 + (vista.getMonth() - inicio.getMonth());
+                        let restantes = Math.max(0, c.cuotas - Math.max(0, diff));
+                        return `<tr><td>${c.desc}</td><td>${c.inicio}</td><td>${c.cuotas}</td><td>${restantes}</td>${mesesSeis.map(mes => {
+                            let d = (mes.getFullYear() - inicio.getFullYear()) * 12 + (mes.getMonth() - inicio.getMonth());
+                            return `<td>${(d >= 0 && d < c.cuotas) ? formatCLP(c.montoCuota || 0) : '$0'}</td>`;
+                        }).join('')}<td>
+                            <button class="btn-edit" onclick="editarCompra(${catIdx}, ${cIdx})">✏️</button>
+                            <button class="btn-delete" onclick="eliminarCompra(${catIdx}, ${cIdx})">🗑️</button>
+                        </td></tr>`;
+                    }).join('')}</tbody></table></div>
+                    <div style="margin-top:5px;">
+                        <input type="text" id="desc-${catIdx}" placeholder="Detalle"><input type="month" id="inicio-${catIdx}"><input type="number" id="total-${catIdx}" placeholder="Total"><input type="number" id="cuotas-${catIdx}" placeholder="Cuotas">
+                        <button class="btn" onclick="addCompra(${catIdx})">+ Deuda</button>
+                    </div>
+                </div>`).join('');
+
+            document.getElementById('contenedor-viajes').innerHTML = (meDebenList.length > 0 || deboList.length > 0 ? `
+            <div class="card" style="font-size: 14px; background: #e8f6f3;">
+                <h4>📊 Resumen Global de Viajes (Deudas con ${db.usuarioPrincipal})</h4>
+                <div style="display: flex; justify-content: space-around; text-align: center;">
+                    <div>
+                        <strong>Me Deben</strong>
+                        <ul style="list-style: none; padding: 0;">${meDebenList.map(([p,s]) => `<li><strong>${p}</strong>: ${formatCLP(s)}</li>`).join('')}</ul>
+                    </div>
+                    <div>
+                        <strong>Debo a</strong>
+                        <ul style="list-style: none; padding: 0;">${deboList.map(([p,s]) => `<li><strong>${p}</strong>: ${formatCLP(-s)}</li>`).join('')}</ul>
+                    </div>
+                </div>
+            </div>` : '') + db.viajes.map((v, vIdx) => {
+                let matrizSaldos = `<h4>💰 Matriz de Saldos</h4><div class="table-scroll"><table><tr><th>Deudor / Acreedor</th>` + 
+                    v.parts.map(p => `<th>${p}</th>`).join('') + `</tr>` +
+                    v.parts.map(deudor => `<tr><td><strong>${deudor}</strong></td>` + 
+                        v.parts.map(acreedor => {
+                            let saldo = 0; 
+                            v.gastos.forEach(g => {
+                                if (g.pagadoPor === acreedor && g.repartido.includes(deudor)) {
+                                    let pIdx = g.repartido.indexOf(deudor);
+                                    let cuotaBase = (g.monto / g.repartido.length) / g.cuotas;
+                                    let montos = g.montosManuales || Array(g.cuotas).fill(cuotaBase);
+                                    if (!g.estados) g.estados = g.repartido.map(() => Array(g.cuotas).fill(false));
+                                    montos.forEach((m, cIdx) => { if (!(g.estados[pIdx] && g.estados[pIdx][cIdx])) saldo += m; });
+                                }
+                            });
+                            return `<td>${formatCLP(saldo)}</td>`;
+                        }).join('') + `</tr>`).join('') + `</table></div>`;
+                
+                const saldosNetos = {}; v.parts.forEach(p => saldosNetos[p] = 0);
+                v.gastos.forEach(g => {
+                    if (!g.repartido || g.repartido.length === 0) return;
+                    let montoTotalPendienteDelGasto = 0; const montoPorCuotaPersona = (g.monto / g.repartido.length) / g.cuotas;
+                    g.repartido.forEach((deudor, pIdx) => {
+                        if (!g.estados) g.estados = g.repartido.map(() => Array(g.cuotas).fill(false));
+                        let montoPendienteDelDeudor = 0;
+                        for (let cIdx = 0; cIdx < g.cuotas; cIdx++) { if (!g.estados[pIdx] || !g.estados[pIdx][cIdx]) montoPendienteDelDeudor += montoPorCuotaPersona; }
+                        saldosNetos[deudor] -= montoPendienteDelDeudor; montoTotalPendienteDelGasto += montoPendienteDelDeudor;
+                    });
+                    saldosNetos[g.pagadoPor] += montoTotalPendienteDelGasto;
+                });
+
+                const deudores = Object.entries(saldosNetos).filter(([, s]) => s < -0.5).map(([p, s]) => ({ persona: p, monto: -s }));
+                const acreedores = Object.entries(saldosNetos).filter(([, s]) => s > 0.5).map(([p, s]) => ({ persona: p, monto: s }));
+                let transacciones = []; let i = 0, j = 0; deudores.sort((a, b) => b.monto - a.monto); acreedores.sort((a, b) => b.monto - a.monto);
+
+                while (i < deudores.length && j < acreedores.length) {
+                    const deudor = deudores[i]; const acreedor = acreedores[j]; const monto = Math.min(deudor.monto, acreedor.monto);
+                    if (deudor.persona !== acreedor.persona && monto > 0.5) {
+                        transacciones.push(`<tr><td><strong>${deudor.persona}</strong> debe pagar a <strong>${acreedor.persona}</strong>:</td><td style="text-align: right;"><strong>${formatCLP(monto)}</strong></td></tr>`);
+                    }
+                    deudor.monto -= monto; acreedor.monto -= monto;
+                    if (deudor.monto < 0.5) i++; if (acreedor.monto < 0.5) j++;
+                }
+
+                let resumenSaldos = `<h4>💸 Resumen para Liquidar</h4><div class="card" style="background-color: #e8f6f3; font-size: 14px; padding: 10px;">`;
+                if (transacciones.length > 0) resumenSaldos += `<div class="table-scroll"><table style="width:100%; border-collapse: collapse; margin-top: 5px;"><tbody>${transacciones.join('')}</tbody></table></div>`;
+                else resumenSaldos += `<p>¡Todas las deudas están saldadas!</p>`;
+                resumenSaldos += `</div>`;
+
+                let detallesIntegrados = `<h4>📝 Detalle y Proyección</h4>` + v.gastos.map((g, gIdx) => {
+                    let cuotaBase = (g.monto / (g.repartido.length || 1)) / g.cuotas; let montos = g.montosManuales || Array(g.cuotas).fill(cuotaBase);
+                    if(!g.estados) g.estados = g.repartido.map(() => Array(g.cuotas).fill(false));
+                    let gKey = vIdx + '-' + gIdx;
+                    return `<div class="card">
+                        <details ${openGastos[gKey] !== false ? 'open' : ''} ontoggle="toggleOpenGasto(this, ${vIdx}, ${gIdx})">
+                            <summary style="cursor:pointer; outline: none; padding: 2px 0; display: flex; justify-content: space-between; align-items: center;">
+                                <div><strong style="font-size: 11px; color: #1a2b4c; margin-right: 5px;">${g.desc}</strong><span style="font-size: 10px; color: #555;">(Total: ${formatCLP(g.monto)} | Cuotas: ${g.cuotas} | Pagado por: ${g.pagadoPor})</span></div>
+                                <button class="btn-edit" onclick="event.stopPropagation(); editarCuotas(${vIdx}, ${gIdx})">⚙️</button>
+                            </summary>
+                            <div class="table-scroll"><table><tbody>${g.repartido.map((p, pIdx) => `<tr><td><strong>${p}</strong></td>${montos.map((m, cIdx) => `<td>${formatCLP(m)}</td><td><button class="btn-status" onclick="togglePagado(${vIdx}, ${gIdx}, ${pIdx}, ${cIdx})">${g.estados[pIdx] && g.estados[pIdx][cIdx] ? '🟢' : '⚪'}</button></td>`).join('')}</tr>`).join('')}</tbody></table></div>
+                            <div id="edit-cuotas-${vIdx}-${gIdx}" style="display:none;"></div>
+                        </details>
+                    </div>`;
+                }).join('') + `
+                <div class="card" style="border: 1px dashed #ccc;">
+                    <input type="text" id="v-desc-${vIdx}" placeholder="Descripción"><input type="month" id="v-inicio-${vIdx}"><input type="number" id="v-monto-${vIdx}" placeholder="Monto"><input type="number" id="v-cuotas-${vIdx}" placeholder="Cuotas"><select id="v-pagado-${vIdx}">${v.parts.map(p => `<option value="${p}">${p}</option>`).join('')}</select>
+                    <div style="margin: 5px 0;">${v.parts.map(p => `<label><input type="checkbox" class="check-${vIdx}" value="${p}" checked> ${p}</label>`).join(' ')}</div>
+                    <button class="btn" onclick="addGastoViaje(${vIdx})">+ Agregar Gasto</button>
+                </div>`;
+                return `<div class="card">
+                    <details ${openViajes[vIdx] ? 'open' : ''} ontoggle="toggleOpen(this, ${vIdx})">
+                        <summary style="cursor:pointer; font-weight:bold; font-size: 14px; padding: 5px; display: flex; justify-content: space-between; align-items: center;">
+                            <span>✈️ ${v.nombre}</span>
+                            <button class="btn-delete" style="padding: 2px 8px; font-size: 10px;" onclick="event.stopPropagation(); eliminarViaje(${vIdx})">🗑️ Eliminar</button>
+                        </summary>
+                        ${resumenSaldos}${matrizSaldos}${detallesIntegrados}
+                    </details>
+                </div>`;
+            }).join('');
+
+            renderComida();
+        }
+
+        renderTodo();
+    </script>
+</body>
+</html>
