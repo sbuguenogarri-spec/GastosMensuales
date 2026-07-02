@@ -356,11 +356,11 @@
                         <div class="form-row">
                             <div>
                                 <label>Sueldo Mensual ($):</label>
-                                <input type="number" id="r-sueldo" placeholder="Ej: 1500000" onchange="actualizarSueldo()" style="width: 110px;">
+                                <input type="text" id="r-sueldo" placeholder="Ej: $1.500.000" onchange="actualizarSueldo()" style="width: 130px;">
                             </div>
                             <div>
                                 <label>Bono Mensual ($):</label>
-                                <input type="number" id="r-bono" placeholder="Ej: 200000" onchange="actualizarBono()" style="width: 100px;">
+                                <input type="text" id="r-bono" placeholder="Ej: $200.000" onchange="actualizarBono()" style="width: 120px;">
                             </div>
                         </div>
                         
@@ -525,7 +525,25 @@
         ];
 
         function formatCLP(value) {
-            return '$' + Math.round(value).toLocaleString('es-CL');
+            if (value === null || value === undefined || value === '' || isNaN(value)) return "$0";
+            return new Intl.NumberFormat('es-CL', {
+                style: 'currency',
+                currency: 'CLP',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(Number(value));
+        }
+
+        function parseCLPInput(value) {
+            if (value === null || value === undefined) return 0;
+            const normalized = String(value).replace(/[$.\s]/g, '').replace(/,/g, '');
+            const parsed = Number(normalized);
+            return Number.isFinite(parsed) ? parsed : 0;
+        }
+
+        function formatCLPInput(value) {
+            const parsed = parseCLPInput(value);
+            return formatCLP(parsed);
         }
 
         function save() { localStorage.setItem('finanzasElle', JSON.stringify(db)); }
@@ -601,23 +619,27 @@
                 db.gastos.push({fecha, desc, monto}); 
                 document.getElementById('g-desc').value = '';
                 document.getElementById('g-monto').value = '';
-                save(); renderTodo(); 
+                save(); renderTodo();
             } else { alert("Faltan datos en Gastos Diarios."); }
         }
 
         function eliminarGastoDiario(idx) { db.gastos.splice(idx, 1); save(); renderTodo(); }
-        function actualizarSueldo() { db.sueldo = parseFloat(document.getElementById('r-sueldo').value) || 0; save(); renderTodo(); }
+        function actualizarSueldo() {
+            db.sueldo = parseCLPInput(document.getElementById('r-sueldo').value) || 0;
+            save();
+            renderTodo();
+        }
         
         function actualizarBono() {
             let mesGlobalSelect = document.getElementById('mes-selector-global').value;
             if (!db.bonos) db.bonos = {};
-            db.bonos[mesGlobalSelect] = parseFloat(document.getElementById('r-bono').value) || 0;
+            db.bonos[mesGlobalSelect] = parseCLPInput(document.getElementById('r-bono').value) || 0;
             save(); renderTodo();
         }
 
         function updateGastoFijo(item, mesKey, valor) {
             if (!db.gastosFijos[mesKey]) db.gastosFijos[mesKey] = {};
-            db.gastosFijos[mesKey][item] = parseFloat(valor) || 0;
+            db.gastosFijos[mesKey][item] = parseCLPInput(valor) || 0;
             save(); renderTodo();
         }
 
@@ -931,7 +953,7 @@
         }
 
         function renderTodo() {
-            document.getElementById('r-sueldo').value = db.sueldo || 0;
+            document.getElementById('r-sueldo').value = formatCLPInput(db.sueldo || 0);
             document.getElementById('global-valor-uf').value = db.valorUf || 38000;
             document.getElementById('global-usuario-principal').value = db.usuarioPrincipal;
             document.getElementById('titulo-resumen-viajes').innerText = `✈️ Viajes: Deudas con ${db.usuarioPrincipal}`;
@@ -944,7 +966,7 @@
             }
             
             // Cargar bono actual en el input
-            document.getElementById('r-bono').value = (db.bonos && db.bonos[mesGlobalSelect]) ? db.bonos[mesGlobalSelect] : 0;
+            document.getElementById('r-bono').value = formatCLPInput((db.bonos && db.bonos[mesGlobalSelect]) ? db.bonos[mesGlobalSelect] : 0);
 
             const vista = new Date(mesGlobalSelect + "-02");
             let meses = [];
@@ -971,9 +993,9 @@
                 meses.forEach((mes, mIdx) => {
                     matrizGastosFijosValores[mIdx][item] = valorBase;
                     if (mIdx === 0) {
-                        rowHtml += `<td><input type="number" class="input-gastos-fijos" value="${valorBase || ''}" placeholder="0" onchange="updateGastoFijo('${item}', '${mesActualKey}', this.value)"></td>`;
+                        rowHtml += `<td><input type="text" class="input-gastos-fijos" value="${formatCLPInput(valorBase || 0)}" placeholder="$0" onchange="updateGastoFijo('${item}', '${mesActualKey}', this.value)"></td>`;
                     } else {
-                        rowHtml += `<td><input type="number" class="input-gastos-fijos" value="${valorBase || ''}" placeholder="0" disabled></td>`;
+                        rowHtml += `<td><input type="text" class="input-gastos-fijos" value="${formatCLPInput(valorBase || 0)}" placeholder="$0" disabled></td>`;
                     }
                 });
                 return rowHtml + `</tr>`;
