@@ -5,56 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Finanzas Personales</title>
     <style>
-        :root {
-            --bg-main: #eef3f8;
-            --bg-card: #ffffff;
-            --text-main: #1f2937;
-            --text-soft: #5b6472;
-            --brand-dark: #1a2b4c;
-            --brand-accent: #2ecc71;
-            --line-soft: #dbe3ee;
-            --shadow-card: 0 10px 20px rgba(20, 40, 80, 0.08);
-            --radius-md: 10px;
-            --radius-lg: 14px;
-        }
-
+        /* [TUS ESTILOS ORIGINALES COMPLETOS] */
+        :root { --bg-main: #eef3f8; --bg-card: #ffffff; --text-main: #1f2937; --text-soft: #5b6472; --brand-dark: #1a2b4c; --brand-accent: #2ecc71; --line-soft: #dbe3ee; --shadow-card: 0 10px 20px rgba(20, 40, 80, 0.08); --radius-md: 10px; --radius-lg: 14px; }
         * { box-sizing: border-box; }
-        body {
-            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            background: radial-gradient(circle at 8% 0%, #f7fbff 0%, var(--bg-main) 42%, #e7eef7 100%);
-            color: var(--text-main);
-            font-size: 11px;
-            min-height: 100vh;
-        }
-        nav {
-            display: flex;
-            background: rgba(255, 255, 255, 0.92);
-            border-bottom: 1px solid var(--line-soft);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            overflow-x: auto;
-            backdrop-filter: blur(6px);
-            box-shadow: 0 4px 14px rgba(30, 60, 100, 0.08);
-        }
-        nav button {
-            flex: 1;
-            min-width: 110px;
-            padding: 11px 10px;
-            border: none;
-            background: none;
-            cursor: pointer;
-            font-weight: 700;
-            color: var(--text-soft);
-            white-space: nowrap;
-            transition: color 0.2s ease, background-color 0.2s ease;
-        }
-        nav button.active {
-            color: var(--brand-dark);
-            border-bottom: 3px solid var(--brand-accent);
-            background: linear-gradient(180deg, rgba(46, 204, 113, 0.18) 0%, rgba(46, 204, 113, 0.04) 100%);
-        }
+        body { font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; margin: 0; background: radial-gradient(circle at 8% 0%, #f7fbff 0%, var(--bg-main) 42%, #e7eef7 100%); color: var(--text-main); font-size: 11px; min-height: 100vh; }
+        nav { display: flex; background: rgba(255, 255, 255, 0.92); border-bottom: 1px solid var(--line-soft); position: sticky; top: 0; z-index: 100; overflow-x: auto; backdrop-filter: blur(6px); box-shadow: 0 4px 14px rgba(30, 60, 100, 0.08); }
+        nav button { flex: 1; min-width: 110px; padding: 11px 10px; border: none; background: none; cursor: pointer; font-weight: 700; color: var(--text-soft); white-space: nowrap; transition: color 0.2s ease, background-color 0.2s ease; }
+        nav button.active { color: var(--brand-dark); border-bottom: 3px solid var(--brand-accent); background: linear-gradient(180deg, rgba(46, 204, 113, 0.18) 0%, rgba(46, 204, 113, 0.04) 100%); }
         .container { padding: 15px; max-width: 1400px; margin: auto; width: 100%; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
@@ -324,183 +281,197 @@
     </style>
 </head>
 <body>
+        <div class="container">
+            
+            <!-- SELECTOR GLOBAL DE MES DE VISUALIZACIÓN -->
+            <div class="selector-mes-principal">
+                <label>📅 MES GLOBAL DE VISUALIZACIÓN:</label>
+                <input type="month" id="mes-selector-global" onchange="cambiarMesGlobal()" value="2026-06">
+                <label>Valor UF estimado ($):</label>
+                <input type="number" id="global-valor-uf" onchange="cambiarValorUF()" value="38000" style="width: 70px;">
+                <label>👤 Usuario Principal:</label>
+                <input type="text" id="global-usuario-principal" onchange="cambiarUsuarioPrincipal()" style="width: 80px;">
+                <button class="btn-reset" onclick="resetApp()" style="margin-left: auto;">RESET APP</button>
+            </div>
 
-    <nav>
-        <button class="nav-btn active" onclick="openTab(event, 'resumen')">Resumen</button>
-        <button class="nav-btn" onclick="openTab(event, 'deudas')">Deudas</button>
-        <button class="nav-btn" onclick="openTab(event, 'viajes')">Viajes</button>
-        <button class="nav-btn" onclick="openTab(event, 'comida')">Comida</button>
-    </nav>
+            <nav>
+                <button class="nav-btn active" onclick="openTab(event, 'resumen')">Resumen</button>
+                <button class="nav-btn" onclick="openTab(event, 'deudas')">Deudas</button>
+                <button class="nav-btn" onclick="openTab(event, 'viajes')">Viajes</button>
+                <button class="nav-btn" onclick="openTab(event, 'comida')">Comida</button>
+            </nav>
 
-    <div class="container">
-        
-        <!-- SELECTOR GLOBAL DE MES DE VISUALIZACIÓN -->
-        <div class="selector-mes-principal">
-            <label>📅 MES GLOBAL DE VISUALIZACIÓN:</label>
-            <input type="month" id="mes-selector-global" onchange="cambiarMesGlobal()" value="2026-06">
-            <label>Valor UF estimado ($):</label>
-            <input type="number" id="global-valor-uf" onchange="cambiarValorUF()" value="38000" style="width: 70px;">
-            <label>👤 Usuario Principal:</label>
-            <input type="text" id="global-usuario-principal" onchange="cambiarUsuarioPrincipal()" style="width: 80px;">
-            <button class="btn-reset" onclick="resetApp()" style="margin-left: auto;">RESET APP</button>
-        </div>
-
-        <!-- PESTAÑA RESUMEN -->
-        <div id="resumen" class="tab-content active">
-            <div class="resumen-grid">
-                
-                <!-- COLUMNA IZQUIERDA: SUELDO, BONO, GASTOS FIJOS, PROYECCIÓN -->
-                <div>
-                    <div class="card">
-                        <h3>💰 Control de Ingresos y Proyecciones</h3>
-                        <div class="form-row">
-                            <div>
-                                <label>Sueldo Mensual ($):</label>
-                                <input type="text" id="r-sueldo" placeholder="Ej: $1.500.000" onchange="actualizarSueldo()" style="width: 130px;">
+            <!-- PESTAÑA RESUMEN -->
+            <div id="resumen" class="tab-content active">
+                <div class="resumen-grid">
+                    
+                    <!-- COLUMNA IZQUIERDA: SUELDO, BONO, GASTOS FIJOS, PROYECCIÓN -->
+                    <div>
+                        <div class="card">
+                            <h3>💰 Control de Ingresos y Proyecciones</h3>
+                            <div class="form-row">
+                                <div>
+                                    <label>Sueldo Mensual ($):</label>
+                                    <input type="text" id="r-sueldo" placeholder="Ej: $1.500.000" onchange="actualizarSueldo()" style="width: 130px;">
+                                </div>
+                                <div>
+                                    <label>Bono Mensual ($):</label>
+                                    <input type="text" id="r-bono" placeholder="Ej: $200.000" onchange="actualizarBono()" style="width: 120px;">
+                                </div>
                             </div>
-                            <div>
-                                <label>Bono Mensual ($):</label>
-                                <input type="text" id="r-bono" placeholder="Ej: $200.000" onchange="actualizarBono()" style="width: 120px;">
+                            
+                            <!-- TABLA DE GASTOS FIJOS -->
+                            <div class="resumen-subseccion">
+                                <h4>📋 Proyección de Gastos Fijos</h4>
+                                <div class="table-scroll">
+                                    <table>
+                                        <thead id="head-gastos-fijos">
+                                            <!-- Dinámico -->
+                                        </thead>
+                                        <tbody id="body-gastos-fijos">
+                                            <!-- Dinámico -->
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
-                        </div>
-                        
-                        <!-- TABLA DE GASTOS FIJOS -->
-                        <div class="resumen-subseccion">
-                            <h4>📋 Proyección de Gastos Fijos</h4>
-                            <div class="table-scroll">
-                                <table>
-                                    <thead id="head-gastos-fijos">
-                                        <!-- Dinámico -->
-                                    </thead>
-                                    <tbody id="body-gastos-fijos">
-                                        <!-- Dinámico -->
-                                    </tbody>
+
+                            <div class="table-scroll" style="margin-top: 15px;">
+                                <table id="tabla-proyeccion-resumen">
+                                    <!-- Dinámico -->
                                 </table>
                             </div>
                         </div>
 
-                        <div class="table-scroll" style="margin-top: 15px;">
-                            <table id="tabla-proyeccion-resumen">
+                        <!-- RESUMEN DE VIAJES -->
+                        <div class="card" style="border-left: 4px solid #3498db;">
+                            <h4 id="titulo-resumen-viajes">✈️ Viajes: Deudas</h4>
+                            <div style="display: flex; justify-content: space-around;" id="resumen-viajes-valores">
                                 <!-- Dinámico -->
-                            </table>
+                            </div>
+                        </div>
+
+                        <!-- RESUMEN DE COMIDA -->
+                        <div class="card" style="border-left: 4px solid #2ecc71;">
+                            <h4>🍽️ Comida: Saldos Pendientes (Mes Seleccionado)</h4>
+                            <div style="display: flex; justify-content: space-around;" id="resumen-comida-valores">
+                                <!-- Dinámico -->
+                            </div>
+                        </div>
+
+                        <!-- FORMULARIO DE AGREGAR CRÉDITO -->
+                        <div class="card" style="border-top: 4px solid #f39c12;">
+                            <h4>💳 Agregar Crédito Consumo / Compra</h4>
+                            <div class="credito-form-container">
+                                <div class="credito-row-top">
+                                    <input type="text" id="rc-desc" placeholder="Descripción">
+                                    <input type="month" id="rc-inicio">
+                                </div>
+                                <div class="credito-row-bottom">
+                                    <input type="number" id="rc-monto" placeholder="Monto" class="credito-input-sm">
+                                    <input type="number" id="rc-cuotas" placeholder="Cuotas" class="credito-input-sm">
+                                    <select id="rc-moneda" class="credito-select-sm">
+                                        <option value="CLP">Pesos ($)</option>
+                                        <option value="UF">UF</option>
+                                    </select>
+                                    <button class="credito-btn-sm" onclick="addCredito()">+ Agregar</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- RESUMEN DE VIAJES -->
-                    <div class="card" style="border-left: 4px solid #3498db;">
-                        <h4 id="titulo-resumen-viajes">✈️ Viajes: Deudas</h4>
-                        <div style="display: flex; justify-content: space-around;" id="resumen-viajes-valores">
+                    <!-- COLUMNA DERECHA: GASTOS DIARIOS Y FLUJO DE CAJA -->
+                    <div>
+                        <div class="card" style="border-top: 4px solid #e74c3c;">
+                            <h3>📉 Gastos Diarios (Mes Seleccionado)</h3>
+                            <div style="display: flex; gap: 5px; margin-bottom: 10px; flex-wrap: wrap;">
+                                <input type="date" id="g-fecha">
+                                <input type="text" id="g-desc" placeholder="Descripción">
+                                <input type="number" id="g-monto" placeholder="Monto">
+                                <button class="btn" style="background:#e74c3c;" onclick="addGasto()">(+) Agregar</button>
+                            </div>
+                            <div class="table-scroll">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Fecha</th>
+                                            <th>Descripción</th>
+                                            <th>Monto</th>
+                                            <th>Acción</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="lista-gastos">
+                                        <!-- Dinámico -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="card" style="background: #1a2b4c; color: white; font-weight: bold; margin-top: 5px; margin-bottom: 0;">
+                                Total Gastado Diarios: <span id="total-gastos">$0</span>
+                            </div>
+                        </div>
+
+                        <!-- FLUJO DE CAJA CONTINUO -->
+                        <div class="card" style="background: #2c3e50; color: white; padding: 15px;" id="seccion-flujo-caja">
                             <!-- Dinámico -->
                         </div>
                     </div>
 
-                    <!-- RESUMEN DE COMIDA -->
-                    <div class="card" style="border-left: 4px solid #2ecc71;">
-                        <h4>🍽️ Comida: Saldos Pendientes (Mes Seleccionado)</h4>
-                        <div style="display: flex; justify-content: space-around;" id="resumen-comida-valores">
-                            <!-- Dinámico -->
-                        </div>
-                    </div>
-
-                    <!-- FORMULARIO DE AGREGAR CRÉDITO -->
-                    <div class="card" style="border-top: 4px solid #f39c12;">
-                        <h4>💳 Agregar Crédito Consumo / Compra</h4>
-                        <div class="credito-form-container">
-                            <div class="credito-row-top">
-                                <input type="text" id="rc-desc" placeholder="Descripción">
-                                <input type="month" id="rc-inicio">
-                            </div>
-                            <div class="credito-row-bottom">
-                                <input type="number" id="rc-monto" placeholder="Monto" class="credito-input-sm">
-                                <input type="number" id="rc-cuotas" placeholder="Cuotas" class="credito-input-sm">
-                                <select id="rc-moneda" class="credito-select-sm">
-                                    <option value="CLP">Pesos ($)</option>
-                                    <option value="UF">UF</option>
-                                </select>
-                                <button class="credito-btn-sm" onclick="addCredito()">+ Agregar</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- COLUMNA DERECHA: GASTOS DIARIOS Y FLUJO DE CAJA -->
-                <div>
-                    <div class="card" style="border-top: 4px solid #e74c3c;">
-                        <h3>📉 Gastos Diarios (Mes Seleccionado)</h3>
-                        <div style="display: flex; gap: 5px; margin-bottom: 10px; flex-wrap: wrap;">
-                            <input type="date" id="g-fecha">
-                            <input type="text" id="g-desc" placeholder="Descripción">
-                            <input type="number" id="g-monto" placeholder="Monto">
-                            <button class="btn" style="background:#e74c3c;" onclick="addGasto()">(+) Agregar</button>
-                        </div>
-                        <div class="table-scroll">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Fecha</th>
-                                        <th>Descripción</th>
-                                        <th>Monto</th>
-                                        <th>Acción</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="lista-gastos">
-                                    <!-- Dinámico -->
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="card" style="background: #1a2b4c; color: white; font-weight: bold; margin-top: 5px; margin-bottom: 0;">
-                            Total Gastado Diarios: <span id="total-gastos">$0</span>
-                        </div>
-                    </div>
-
-                    <!-- FLUJO DE CAJA CONTINUO -->
-                    <div class="card" style="background: #2c3e50; color: white; padding: 15px;" id="seccion-flujo-caja">
-                        <!-- Dinámico -->
-                    </div>
-                </div>
-
-            </div>
-        </div>
-        
-        <!-- PESTAÑA DEUDAS -->
-        <div id="deudas" class="tab-content">
-            <h1>Deudas / Compromisos Tarjetas</h1>
-            <div class="card" style="background: #1a2b4c; color: white;">
-                <h3>Resumen General de Tarjetas</h3>
-                <div class="table-scroll">
-                    <table style="color: white;">
-                        <thead id="head-resumen"></thead>
-                        <tbody id="body-resumen"></tbody>
-                    </table>
                 </div>
             </div>
-            <div class="card">
-                <input type="text" id="cat-nombre" placeholder="Nombre categoría"><button class="btn" onclick="addCategoria()">+ Crear Categoría</button>
+            
+            <!-- PESTAÑA DEUDAS -->
+            <div id="deudas" class="tab-content">
+                <h1>Deudas / Compromisos Tarjetas</h1>
+                <div class="card" style="background: #1a2b4c; color: white;">
+                    <h3>Resumen General de Tarjetas</h3>
+                    <div class="table-scroll">
+                        <table style="color: white;">
+                            <thead id="head-resumen"></thead>
+                            <tbody id="body-resumen"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card">
+                    <input type="text" id="cat-nombre" placeholder="Nombre categoría"><button class="btn" onclick="addCategoria()">+ Crear Categoría</button>
+                </div>
+                <div id="contenedor-categorias"></div>
             </div>
-            <div id="contenedor-categorias"></div>
-        </div>
 
-        <!-- PESTAÑA VIAJES -->
-        <div id="viajes" class="tab-content">
-            <h1>Gestión de Viajes</h1>
-            <div class="card">
-                <input type="text" id="v-nombre" placeholder="Nombre del Viaje (Ej: Brasil 2026)">
-                <input type="number" id="v-num-personas" placeholder="Cant. Personas" min="1" onchange="generarCamposNombre()">
-                <div id="campos-nombres" style="margin: 10px 0;"></div>
-                <button class="btn" onclick="crearViaje()">+ Crear Viaje</button>
+            <!-- PESTAÑA VIAJES -->
+            <div id="viajes" class="tab-content">
+                <h1>Gestión de Viajes</h1>
+                <div class="card">
+                    <input type="text" id="v-nombre" placeholder="Nombre del Viaje (Ej: Brasil 2026)">
+                    <input type="number" id="v-num-personas" placeholder="Cant. Personas" min="1" onchange="generarCamposNombre()">
+                    <div id="campos-nombres" style="margin: 10px 0;"></div>
+                    <button class="btn" onclick="crearViaje()">+ Crear Viaje</button>
+                </div>
+                <div id="contenedor-viajes"></div>
             </div>
-            <div id="contenedor-viajes"></div>
+
+            <!-- PESTAÑA COMIDA -->
+            <div id="comida" class="tab-content">
+                <h1>Divisor de Cuentas de Comidas</h1>
+                <div id="contenedor-comidas"></div>
+            </div>
         </div>
 
-        <!-- PESTAÑA COMIDA -->
-        <div id="comida" class="tab-content">
-            <h1>Divisor de Cuentas de Comidas</h1>
-            <div id="contenedor-comidas"></div>
-        </div>
-    </div>
+            <!-- Parte 3: Lógica JS (Script) -->
+<script>
+        // 1. Inicialización única y segura
+        let db = JSON.parse(localStorage.getItem('finanzasElle')) || { 
+            categorias: [], 
+            gastos: [], 
+            viajes: [], 
+            comidas: [], 
+            creditos: [], 
+            sueldo: 1500000, 
+            valorUf: 38000, 
+            usuarioPrincipal: "Seba", 
+            gastosFijos: {}, 
+            bonos: {} 
+        };
 
-    <script>
-        let db = JSON.parse(localStorage.getItem('finanzasElle')) || { categorias: [], gastos: [], viajes: [], comidas: [], creditos: [], sueldo: 1500000, valorUf: 38000, usuarioPrincipal: "Seba", gastosFijos: {}, bonos: {} };
+        // 2. Normalización de datos (para asegurar compatibilidad con versiones anteriores)
         if (!db.comidas) db.comidas = [];
         if (!db.creditos) db.creditos = [];
         if (!db.sueldo || db.sueldo === 0) db.sueldo = 1500000;
@@ -508,7 +479,23 @@
         if (!db.usuarioPrincipal) db.usuarioPrincipal = "Seba";
         if (!db.gastosFijos) db.gastosFijos = {};
         if (!db.bonos) db.bonos = {};
-        
+
+        // 3. Funciones de persistencia del usuario
+        function actualizarUsuarioGlobal(nuevoNombre) {
+            db.usuarioPrincipal = nuevoNombre.trim() || "Seba";
+            save();
+            renderTodo(); 
+        }
+
+        // 4. Inicialización al cargar la página
+        window.onload = () => {
+            const inputUsuario = document.getElementById('global-usuario-principal');
+            if (inputUsuario) {
+                inputUsuario.value = db.usuarioPrincipal;
+            }
+            renderTodo();
+        };
+
         let openViajes = JSON.parse(localStorage.getItem('openViajes')) || {};
         let openGastos = JSON.parse(localStorage.getItem('openGastosViajes')) || {};
         
